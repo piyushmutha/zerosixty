@@ -223,7 +223,7 @@
     inRun() { return this.state === 'run' || this.state === 'intro'; }
     newRun() {
       return {
-        time: 0, score: 0, volts: 0, near: 0, wrecks: 0, top: 0, combo: 0, comboT: 0, mult: 1, gap: 9,
+        time: 0, score: 0, volts: 0, near: 0, wrecks: 0, top: 0, combo: 0, comboT: 0, mult: 1, gap: 16,
         voltStep: 0, voltT: 0, biome: '', said: {}, lastSay: -99, reason: '', hitKind: null, nearChain: 0,
       };
     }
@@ -258,7 +258,9 @@
       this.run = this.newRun();
       this.state = 'intro';
       this.introT = 0;
-      this.launchCam = null;
+      this.surge = 0;
+      this.tubeK = 0;
+      this.tubeT = 0;
       this.camFrom = this.camera.position.clone();
       this.lookFrom = this.camLook.clone();
       EZ.UI.screen(null);
@@ -443,7 +445,7 @@
       e.roll = 1.25;
       e.moving = true;
       this.ents.draw(e);
-      r.gap -= 16;
+      const out = this.loseGap(16);
       this.breakCombo();
       EZ.Audio.scrape();
       EZ.Audio.glass();
@@ -452,7 +454,7 @@
       EZ.UI.pop('Smashed the toll arm', 'bad');
       this.shake = 0.45;
       this.vibrate(50);
-      if (r.gap <= 0) this.bust('caught');
+      if (out) this.bust('caught');
     }
     // An EMP mine goes off under the car: thrusters dead for a moment, the cruisers gain.
     empHit(e) {
@@ -463,7 +465,7 @@
       p.hops = 0;
       p.hopCharge = 0;
       p.battery = Math.max(0, p.battery - 8);
-      r.gap -= 11;
+      const out = this.loseGap(11);
       this.breakCombo();
       EZ.Audio.emp();
       for (let i = 0; i < 3; i++) this.fx.sparks(p.x + EZ.rand(-0.8, 0.8), 0.3, -p.s - 0.5, 0, -p.speed * 0.3, 14, this.fx.c.blue);
@@ -473,7 +475,7 @@
       this.say('emp');
       this.shake = 0.5;
       this.vibrate([40, 30, 60]);
-      if (r.gap <= 0) this.bust('caught');
+      if (out) this.bust('caught');
     }
     onBoost() {
       const p = this.player;
@@ -553,7 +555,6 @@
       p.pitchV += 0.9;
       p.heaveV -= 0.4;
       p.fire.rear = 1;
-      this.launchCam = 0;
       this.shake = Math.max(this.shake, 0.55);
       EZ.Audio.launch();
       EZ.UI.speedLaunch(true);
@@ -571,8 +572,9 @@
       // never under sixty while the battery holds; only a dying battery slows it further
       if (p.battery >= 12) target = Math.max(target, C.SIXTY);
       const s0 = p.s;
-      // rear thrusters: 0-60 in about 0.8 s at the start, and again when you hit Launch
-      const thrust = (p.launch > 0 && p.speed < 27.5) || p.boosting > 2.5;
+      // rear thrusters: 0-60 in about 0.8 s at the start, and they keep pushing right up to cruising speed
+      // so the pull never drops off part-way; Launch fires them again later
+      const thrust = (p.launch > 0 && p.speed < target - 0.2) || p.boosting > 2.5;
       if (thrust) p.fire.rear = Math.max(p.fire.rear, 0.06);
       const n = Math.max(1, Math.ceil(dt * 120)), h = dt / n;
       for (let i = 0; i < n && this.state === 'run'; i++) {
@@ -591,8 +593,6 @@
       if (this.state !== 'run') return;
       if (!r.launchDone && p.speed >= C.SIXTY) {
         r.launchDone = true;
-        // a beat of slow motion as the needle hits sixty
-        this.slowMo(0.3, 0.14, 0.6);
         EZ.UI.speedLaunch(false);
         this.vibrate(28);
         this.say('launch');
@@ -613,6 +613,8 @@
       r.gap = Math.min(C.GAP_MAX, r.gap + rate * dt);
       if (p.jammer > 0) r.gap = C.GAP_MAX;
       if (r.gap <= 0) { this.bust(p.battery < 1 ? 'battery' : 'caught'); return; }
+      if (r.gap <= C.BUMPER && !r.bumper) this.onBumper();
+      else if (r.gap > C.BUMPER + 3) r.bumper = false;
 
       // combo
       if (r.comboT > 0) { r.comboT -= dt; if (r.comboT <= 0) this.breakCombo(); }
@@ -631,7 +633,7 @@
       // tell the driver the moment Launch is ready, and how to fire it
       const ready = p.boost >= 1 && p.boosting <= 0;
       if (ready && !r.launchReady) {
-        EZ.UI.pop(EZ.touch ? 'Launch ready: double-tap' : 'Launch ready: Shift', 'good');
+        EZ.UI.pop(EZ.touch ? 'Launch ready: hold anywhere' : 'Launch ready: Shift', 'good');
         EZ.Audio.chargeOn();
       }
       r.launchReady = ready;
@@ -706,14 +708,14 @@
         if (p.air || p.spiked > 0) return;
         e.hitDone = true;
         p.spiked = 2.4;
-        r.gap -= 20;
+        const out = this.loseGap(20);
         this.breakCombo();
         EZ.Audio.spike();
         EZ.UI.pop('Tyres spiked', 'bad');
         this.say('spikes');
         this.shake = 0.4;
         this.vibrate(60);
-        if (r.gap <= 0) this.bust('caught');
+        if (out) this.bust('caught');
         return;
       }
       if (e.type === 'soft') {
@@ -721,7 +723,7 @@
         e.type = 'decor';
         this.ents.launch(e, p.speed * 0.7, (e.x - p.x) * 5 + EZ.rand(-2, 2), EZ.rand(4, 8), EZ.rand(-8, 8), 2.2);
         EZ.Audio.cone();
-        if (p.boosting <= 0) { r.gap -= 4; this.breakCombo(); }
+        if (p.boosting <= 0) { r.gap = Math.max(Math.min(r.gap, 2), r.gap - 4); this.breakCombo(); }
         return;
       }
       // landing on a roof: the thrusters cushion it and you bounce off
@@ -759,6 +761,25 @@
       }
       this.bust('crash', e);
     }
+    // A hit costs lead. From a safe distance it can only put the lead cruiser on your bumper, with a
+    // warning; it takes a second hit while it's that close to end the run. Returns true when it's over.
+    loseGap(m) {
+      const r = this.run;
+      if (r.gap > C.BUMPER) {
+        r.gap = Math.max(4, r.gap - m);
+        if (r.gap <= C.BUMPER) this.onBumper();
+        return false;
+      }
+      r.gap = 0;
+      return true;
+    }
+    onBumper() {
+      this.run.bumper = true;
+      EZ.UI.pop('Cruiser on your bumper!', 'bad');
+      EZ.Audio.whoop();
+      this.vibrate([60, 40, 60]);
+      this.say('close', {}, true);
+    }
     stumble(e) {
       const p = this.player, r = this.run;
       e.hitDone = true;
@@ -777,7 +798,7 @@
       p.scrape = 0.45;
       p.scrapeSide = e.x >= p.x ? 1 : -1;
       this.fx.chips(p.x + p.scrapeSide * 0.95, 0.5, -p.s, p.scrapeSide * 2, -1, -p.speed * 0.35, 5, [EZ.paintById(EZ.store.data.paint).color, 0x15171a], 0.55);
-      r.gap -= C.STUMBLE_GAP;
+      const out = this.loseGap(C.STUMBLE_GAP);
       this.breakCombo();
       EZ.Audio.scrape();
       this.fx.sparks((p.x + e.x) / 2, 0.6, -p.s - 0.5, (p.x - e.x) * 2, -p.speed * 0.25, 22);
@@ -785,7 +806,7 @@
       this.shake = 0.5;
       this.vibrate(70);
       this.say('stumble');
-      if (r.gap <= 0) this.bust('caught');
+      if (out) this.bust('caught');
     }
     passed(e) {
       const r = this.run, p = this.player;
@@ -1071,28 +1092,35 @@
       const st = this.state === 'paused' ? this.resumeTo : this.state;
       if (st === 'run' || st === 'intro') {
         const gapPull = EZ.clamp((12 - r.gap) / 12, 0, 1);
-        // launch: the car leaps out from under the camera, which takes a second to catch up
-        let surge = 0;
-        if (this.launchCam != null) {
-          const t = (this.launchCam += dt);
-          surge = t < 0.3 ? EZ.smoothstep(0, 0.3, t) : Math.exp(-(t - 0.3) * 2.4);
-          if (t > 2.5) this.launchCam = null;
-        }
-        const back = EZ.lerp(7.6, 8.4, portrait) + gapPull * 4.5 + (p.boosting > 0 ? 1.3 : 0) + surge * 3;
+        // launch: while the thrusters push, the camera falls back and widens; once the car is cruising it
+        // eases back in slowly enough that it never looks like the car is braking
+        const pushing = st === 'run' && p.launch > 0 && p.speed < EZ.Player.baseSpeed(p.s) - 0.3;
+        this.surge = EZ.damp(this.surge || 0, pushing ? 1 : 0, pushing ? 4 : 0.7, dt || 0);
+        const surge = this.surge;
+        const back = EZ.lerp(7.6, 8.4, portrait) + gapPull * 4.5 + (p.boosting > 0 ? 1.3 : 0) + surge * 2.2;
         const height = EZ.lerp(3.4, 4.6, portrait) + gapPull * 1.2;
         const ahead = EZ.lerp(10, 6, portrait);
-        const follow = p.inTube ? 0.95 : EZ.lerp(0.55, 0.86, portrait);
-        // inside the tube the camera drops below the car so the ceiling deck never hides it
+        // the tube has its own framing (tight on the car, the camera dropping below it on the ceiling);
+        // blend in and out of it rather than switching, or the view jumps as the car lands
+        // an S-curve, so the change starts and finishes gently: about 0.45 s going in, 1.1 s coming out
+        this.tubeT = EZ.clamp((this.tubeT || 0) + (p.inTube ? (dt || 0) / 0.45 : -(dt || 0) / 1.1), 0, 1);
+        const tk = (this.tubeK = EZ.smoothstep(0, 1, this.tubeT));
+        const follow = EZ.lerp(EZ.lerp(0.55, 0.86, portrait), 0.95, tk);
         const inv = p.inTube ? (1 - Math.cos(p.stuntRoll)) / 2 : 0;
-        if (p.inTube) {
-          pos.set(p.x * follow, EZ.lerp(height + p.y * 0.9, 4.4, inv), -p.s + back + 0.6);
-          look.set(p.x, EZ.lerp(1.0 + p.y * 0.95, p.y + 0.4, inv), -p.s - ahead);
-        } else {
-          pos.set(p.x * follow, height + p.y * 0.55, -p.s + back);
-          look.set(p.x * follow * 0.9, 1.0 + p.y * 0.45, -p.s - ahead);
+        pos.set(p.x * follow, EZ.lerp(height + p.y * EZ.lerp(0.55, 0.9, tk), 4.4, inv), -p.s + back + 0.6 * tk);
+        look.set(EZ.lerp(p.x * follow * 0.9, p.x, tk), EZ.lerp(1.0 + p.y * EZ.lerp(0.45, 0.95, tk), p.y + 0.4, inv), -p.s - ahead);
+        // a cruiser lining up for a PIT: on a narrow screen, lean and widen the view so you can see it alongside
+        const P = this.police.pit;
+        const pitOn = P && !P.e.dead && (P.phase === 'shadow' || P.phase === 'swerve' || (P.phase === 'approach' && P.t > 1.2));
+        this.pitCam = EZ.damp(this.pitCam || 0, pitOn ? portrait : 0, 3, dt || 0);
+        if (this.pitCam > 0.001) {
+          const lean = (P ? P.side : this.pitSide || 0) * 1.5 * this.pitCam;
+          if (P) this.pitSide = P.side;
+          pos.x += lean;
+          look.x += lean * 0.6;
         }
         // tall phones frame by width instead: the same 34° across the road on any of them
-        fov = Math.max(56, this.fovForWidth(34)) + EZ.clamp((p.speed - 35) * 0.14, 0, 8) + (p.boosting > 0 ? 7 : 0) + surge * 10;
+        fov = Math.max(56, this.fovForWidth(34)) + EZ.clamp((p.speed - 35) * 0.14, 0, 8) + (p.boosting > 0 ? 7 : 0) + surge * 8 + this.pitCam * 9;
         if (st === 'intro') {
           const k = EZ.smoothstep(0, LAUNCH_AT + 0.1, this.introT);
           pos.lerpVectors(this.camFrom, pos, k);
@@ -1132,7 +1160,7 @@
       cam.position.copy(pos);
       this.camLook.copy(look);
       cam.lookAt(look);
-      if (st === 'run') cam.rotateZ(p.inTube ? 0.3 * Math.sin(p.stuntRoll / 2) : EZ.clamp(-p.vx * 0.0028, -0.04, 0.04));
+      if (st === 'run') cam.rotateZ(EZ.lerp(EZ.clamp(-p.vx * 0.0028, -0.04, 0.04), p.inTube ? 0.3 * Math.sin(p.stuntRoll / 2) : 0, this.tubeK || 0));
       if (Math.abs(cam.fov - fov) > 0.01) {
         cam.fov = EZ.damp(cam.fov, fov, 4, dt || 1);
         cam.updateProjectionMatrix();
@@ -1193,7 +1221,7 @@
       this.updateCamera(vdt);
       this.world.update(p.s, vdt, this.camera);
       this.updateEnv(this.world.envKey);
-      this.fx.update(vdt, this.camera, p.speed, (p.boosting > 0 || (this.launchCam != null && this.launchCam < 1.1)) && this.state === 'run');
+      this.fx.update(vdt, this.camera, p.speed, (p.boosting > 0 || this.surge > 0.35) && this.state === 'run');
       this.updateAudio();
       if (this.inRun() || this.state === 'busted') EZ.UI.hud(this, realDt);
       this.render();

@@ -208,6 +208,8 @@
       this.hiss(0.9, 0.6, 500, 3400, 'bandpass', 0.7); // cold gas leaving the rear nozzles
       this.tone('sawtooth', 160, 1900, 0.85, 0.06); // the motors winding up
     },
+    // a cruiser alongside, about to swerve for a PIT
+    pitWarn() { [0, 0.16, 0.32].forEach((d) => this.tone('square', 1180, 1180, 0.1, 0.06, d)); },
     click() { this.tone('square', 1800, 1200, 0.03, 0.03); },
     wreck() { this.hiss(0.8, 0.5, 1200, 100, 'lowpass', 0.6); this.tone('sine', 80, 35, 0.5, 0.35, 0.05); },
     bust() { this.tone('triangle', 700, 700, 0.12, 0.12); this.tone('triangle', 700, 700, 0.12, 0.12, 0.2); },

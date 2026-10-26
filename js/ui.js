@@ -11,7 +11,7 @@
       ['hop', '↑', 'Swipe up', 'Thruster hop'],
       ['low', '↓', 'Swipe down, hold to stay low', 'Ride low'],
       ['roll', '↖ ↗', 'Flick up and to one side', 'Barrel roll'],
-      ['launch', '× 2', 'Double-tap, or tap the yellow diamond', 'Launch'],
+      ['launch', 'Hold', 'Hold a finger still anywhere, or tap the yellow diamond', 'Launch'],
       ['pause', 'II', 'The button top left', 'Pause'],
     ],
     keys: [
@@ -31,7 +31,7 @@
       const ids = ['boot', 'bootMsg', 'bootBar', 'title', 'paint', 'settings', 'pause', 'citation', 'hud',
         'bestDist', 'bestUnit', 'titleControls', 'totalDist', 'swatches', 'paintName',
         'hudMile', 'hudSpeed', 'hudUnit', 'hudScore', 'hudMult', 'hudGap', 'mirror', 'mirrorGlass',
-        'chargeFill', 'chargePct', 'charge', 'hops', 'btnLaunch', 'launchFill', 'flankL', 'flankR',
+        'chargeFill', 'chargePct', 'charge', 'hops', 'btnLaunch', 'launchFill', 'flankL', 'flankR', 'bumper', 'holdRing',
         'btnPlay', 'playField', 'playName', 'btnPlaySignIn',
         'pops', 'powerups', 'dispatch', 'spotGlare', 'gust', 'empFx', 'speedSign', 'quick', 'quickCap', 'quickRow', 'ctlList', 'ctlPad',
         'tNo', 'tVehicle', 'tCharge', 'tLoc', 'tDist', 'tTop', 'tNear', 'tVolts', 'tWrecks', 'tTime', 'tScore', 'tBest', 'tUnlock', 'tOfficer'];
@@ -94,7 +94,7 @@
       this.el.bestDist.textContent = EZ.fmt.dist(d.bestDist);
       this.el.bestUnit.textContent = EZ.fmt.distUnit();
       this.el.titleControls.textContent = EZ.touch
-        ? 'Swipe to change lanes, up to hop, down to ride low. Flick up and sideways to barrel-roll. Double-tap to launch.'
+        ? 'Swipe to change lanes, up to hop, down to ride low. Flick up and sideways to barrel-roll. Hold anywhere to launch.'
         : 'Arrows or WASD to drive. Up hops, down rides low, Q and E barrel-roll. Shift launches. Esc pauses.';
     },
 
@@ -222,6 +222,7 @@
       E.launchFill.style.setProperty('--fill', `${Math.round((p.boosting > 0 ? p.boosting / 3.4 : p.boost) * 100)}%`);
       this.cls('launch', E.btnLaunch, 'is-ready', p.boost >= 1 && p.boosting <= 0);
       this.cls('launch', E.btnLaunch, 'is-active', p.boosting > 0);
+      this.cls('bump', E.bumper, 'is-on', g.state === 'run' && r.gap <= EZ.C.BUMPER);
       this.cls('fl', E.flankL, 'is-on', g.police.side < 0);
       this.cls('fr', E.flankR, 'is-on', g.police.side > 0);
       this.cls('spot', E.spotGlare, 'is-on', g.police.lit);
@@ -269,7 +270,7 @@
     },
     pop(text, kind = 'info') {
       const box = this.el.pops;
-      while (box.children.length > 3) box.firstChild.remove();
+      while (box.children.length > 2) box.firstChild.remove();
       const d = document.createElement('div');
       d.className = `pop pop--${kind}`;
       d.textContent = text;
@@ -306,6 +307,20 @@
       this.el.playField.hidden = !p.available;
       this.el.playName.textContent = p.signedIn ? `Signed in as ${p.name || 'a player'}` : p.failed ? "Couldn't sign in. Try again." : 'Not signed in';
       this.el.btnPlaySignIn.hidden = p.signedIn;
+    },
+
+    // the ring that fills round a finger held still to Launch; null hides it
+    holdRing(x, y, ms) {
+      const el = this.el.holdRing;
+      if (x == null) { el.hidden = true; return; }
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.setProperty('--fill', `${ms}ms`);
+      el.classList.toggle('is-ready', this.g.player.boost >= 1);
+      el.hidden = false;
+      el.classList.remove('is-filling');
+      void el.offsetWidth;
+      el.classList.add('is-filling');
     },
 
     // ---------------------------------------------------------------- controls

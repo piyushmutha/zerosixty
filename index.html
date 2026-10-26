@@ -138,6 +138,7 @@
         <span id="hudScore">0</span>
         <span class="mult" id="hudMult">×1</span>
       </div>
+      <div class="pops" id="pops" aria-live="polite"></div>
     </div>
 
     <div class="sign sign--white speed-sign" id="speedSign" aria-label="Speed">
@@ -146,6 +147,8 @@
       <span class="speed-unit" id="hudUnit">mph</span>
     </div>
 
+    <div class="bumper" id="bumper" aria-hidden="true"></div>
+    <div class="hold-ring" id="holdRing" aria-hidden="true" hidden><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34"/></svg></div>
     <div class="flank flank--left" id="flankL" aria-hidden="true"><i></i><i></i></div>
     <div class="flank flank--right" id="flankR" aria-hidden="true"><i></i><i></i></div>
     <div class="gust" id="gust" aria-hidden="true">
@@ -153,7 +156,6 @@
       <b>Gust</b>
     </div>
 
-    <div class="pops" id="pops" aria-live="polite"></div>
     <div class="powerups" id="powerups"></div>
     <div class="quick" id="quick" hidden>
       <p class="quick-cap" id="quickCap"></p>

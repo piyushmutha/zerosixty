@@ -1,5 +1,5 @@
 /* Zero Sixty: offline cache. After the first visit the game runs with no connection. */
-const CACHE = 'zero-sixty-v16';
+const CACHE = 'zero-sixty-v21';
 const SHELL = [
   './', 'index.html', 'css/fonts.css', 'css/style.css', 'manifest.webmanifest', 'icons/favicon.png', 'icons/icon-192.png', 'icons/icon-512.png', 'vendor/three.min.js',
   'vendor/fonts/overpass-latin-400-normal.woff2', 'vendor/fonts/overpass-latin-600-normal.woff2',

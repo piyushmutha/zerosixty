@@ -66,14 +66,14 @@ The native side is `PlayGamesPlugin.java` and `ZeroSixtyApp.java` in `android/ap
 | Thruster hop | ↑, W or Space | Swipe up | A |
 | Barrel roll left / right | Q / E | Flick up-left / up-right | LB / RB |
 | Ride low | ↓ or S (hold to stay low) | Swipe down | B |
-| Launch boost | Shift or F | Double-tap, or the yellow diamond | X or RT |
+| Launch boost | Shift or F | Hold a finger still anywhere, or tap the yellow diamond | X or RT |
 | Pause | Esc or P | Pause button | Start |
 
 The same list is in the game: Settings on the title screen, or Controls & settings in the pause menu.
 
 ## The start
 
-Every run starts on the line with the cruisers right behind you. For a moment the motors wind up against the brakes, the car squats and the tyres smoke. Then the rear thrusters fire and it's sixty in about 0.8 seconds: a thump, the camera left behind for a beat, speed lines, the speed sign swelling as it counts up and flashing yellow at sixty while time slows for an instant.
+Every run starts on the line with the cruisers right behind you. For a moment the motors wind up against the brakes, the car squats and the tyres smoke. Then the rear thrusters fire and it's sixty in about 0.8 seconds, and they keep pushing to cruising speed: a thump, speed lines, the camera falling back and widening as the speed builds, and the speed sign swelling as it counts up and flashing yellow at sixty.
 
 From there the car never drops below 60 mph. Scrapes and spike strips slow it down to sixty and no further; only a dying battery takes it lower.
 
@@ -101,13 +101,13 @@ The car follows what Tesla showed when it revealed the Roadster on October 15, 2
 ## How it plays
 
 - The road is a three-lane, one-way highway. Traffic is slowest in the right lane and fastest on the left.
-- The lead cruiser's distance shows under the rear-view mirror. Scraping anything costs you about half of it; two quick scrapes and you're boxed in. The gap recovers while you drive clean.
+- The lead cruiser's distance shows under the rear-view mirror. Scrapes, spikes, EMP mines and toll arms all cost you some of it, and it recovers while you drive clean. One hit never ends a run from a safe distance: at worst it puts the cruiser on your bumper, with a red glow from behind and a warning. A second hit while it's that close and you're boxed in.
 - Hitting something head-on ends the run, and so does letting the battery run flat. Charge cells (the yellow bolts) top it up.
 - Crashes play out physically: a moment of slow motion, then the car tumbles, flips or barrel-rolls depending on what it hit and how fast, can lose a wheel, scatters paint, carbon and glass, and comes to rest on its wheels, roof or side with the hazard lights blinking. Whatever you hit is shoved, flipped or knocked loose. Getting caught is a PIT-style spin-out.
 - The cold-gas thrusters hop you over barriers and spike strips.
 - The air suspension drops the car just low enough to slide under low-clearance bars and jackknifed trailers.
 - Close calls, clean hops, rolls, slides and ceiling runs build your multiplier and fill the Launch diamond.
-- Cruisers pull alongside to try a PIT manoeuvre. Yellow chevrons flash on the side they come from. Lure one into an obstacle to wreck it.
+- Cruisers pull alongside to try a PIT manoeuvre. Yellow chevrons flash on the side they come from, an alarm sounds as the cruiser draws level, and it holds there for a moment before it swerves: change lanes away, hop, or roll. On a phone the camera widens so you can see it. Lure one into an obstacle to wreck it.
 - After dusk a helicopter sweeps its spotlight over you. Stay out of the light.
 - Overhead message signs warn you about roadblocks, spike strips, lane closures and the set pieces below.
 

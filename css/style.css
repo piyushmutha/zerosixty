@@ -502,6 +502,43 @@ input[type="range"] { width: min(180px, 45vw); accent-color: var(--green); }
 .flank.is-on { opacity: 1; animation: blink 0.5s steps(2, jump-none) infinite; }
 @keyframes blink { 50% { opacity: 0.25; } }
 
+/* hold a finger still to Launch: a ring fills round it (yellow when the Launch meter is full) */
+.hold-ring {
+  position: fixed;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  pointer-events: none;
+}
+.hold-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.hold-ring circle {
+  fill: none;
+  stroke: rgba(246, 247, 243, 0.85);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 214;
+  stroke-dashoffset: 214;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+}
+.hold-ring.is-ready circle { stroke: var(--yellow); }
+.hold-ring.is-filling circle { animation: hold-fill var(--fill, 230ms) linear forwards; }
+@keyframes hold-fill { to { stroke-dashoffset: 0; } }
+
+/* the lead cruiser on your bumper: a red glow coming up from behind */
+.bumper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  background: linear-gradient(to top, rgba(255, 32, 56, 0.5), rgba(255, 32, 56, 0));
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.bumper.is-on { opacity: 1; animation: bumper 0.55s ease-in-out infinite alternate; }
+@keyframes bumper { to { opacity: 0.35; } }
+
 /* Crosswind warning: a yellow diamond on the side the gust is coming from */
 .gust {
   position: absolute;
@@ -558,18 +595,16 @@ input[type="range"] { width: min(180px, 45vw); accent-color: var(--green); }
 }
 
 .pops {
-  position: absolute;
-  left: 50%;
-  top: 30%;
-  transform: translateX(-50%);
+  /* under the score, over the sky: messages never sit on the road ahead */
+  margin-top: 0.4em;
   display: grid;
   justify-items: center;
-  gap: 0.35em;
+  gap: 0.3em;
 }
 .pop {
-  padding: 0.5em 0.8em 0.35em;
+  padding: 0.45em 0.75em 0.3em;
   border-radius: 0.4em;
-  font: 800 1.05em/1 var(--sans);
+  font: 800 0.95em/1 var(--sans);
   white-space: nowrap;
   animation: pop 1.1s ease-out forwards;
 }
@@ -843,11 +878,15 @@ input[type="range"] { width: min(180px, 45vw); accent-color: var(--green); }
   .dash { left: calc(var(--sl) + var(--gutter)); justify-content: space-between; }
   .powerups { bottom: calc(var(--sb) + var(--gutter) + 6.4em); }
   .quick { bottom: calc(var(--sb) + var(--gutter) + 5em); }
-  .pops { top: 34%; }
+  /* PIT chevrons beside the car, where your eyes are */
+  .flank { top: 56%; }
+  .flank i { width: 2.8em; height: 3.9em; box-shadow: 0 0 0 2px var(--ink), 0 0 14px rgba(255, 199, 44, 0.6); }
 }
 
 @media (max-height: 460px) and (min-aspect-ratio: 4/5) {
   :root { --hud: clamp(11px, 1.4vmin + 6px, 14px); }
+  /* no room under the score on a short screen: beside the mirror instead, still over the sky */
+  .pops { position: absolute; left: calc(100% + 1em); top: 0; margin: 0; justify-items: start; }
   .gantry { padding-top: 36px; width: min(540px, 70%); }
   .truss, .hangers i { top: 6px; }
   .hangers i { height: 36px; }
@@ -867,7 +906,7 @@ input[type="range"] { width: min(180px, 45vw); accent-color: var(--green); }
   .ticket { animation: none; }
   .pop { animation-duration: 1.6s; }
   .speed-sign.is-sixty { animation: none; }
-  .flank.is-on, .charge.is-critical, .launch.is-ready .launch-edge, .launch.is-denied .launch-edge, .gust.is-on, .hops.is-emp i, .charge.is-charging .charge-bar i { animation: none; }
+  .bumper.is-on, .flank.is-on, .charge.is-critical, .launch.is-ready .launch-edge, .launch.is-denied .launch-edge, .gust.is-on, .hops.is-emp i, .charge.is-charging .charge-bar i { animation: none; }
   .emp-fx.is-on { animation-duration: 0.3s; }
   .impact-flash.is-on { animation-duration: 0.2s; }
 }

@@ -14,11 +14,13 @@
     Enter: 'confirm',
   };
 
+  const HOLD_MS = 350; // hold a finger still this long to Launch
+  const RING_MS = 120; // the ring only shows once a touch has clearly stopped, so swipes never flash it
+
   EZ.Input = {
     init(game) {
       this.g = game;
       this.ptr = null;
-      this.lastTap = 0;
       this.pads = {};
       window.addEventListener('keydown', (e) => this.key(e, true));
       window.addEventListener('keyup', (e) => this.key(e, false));
@@ -26,7 +28,7 @@
       el.addEventListener('pointerdown', (e) => this.down(e));
       window.addEventListener('pointermove', (e) => this.move(e));
       window.addEventListener('pointerup', (e) => this.up(e));
-      window.addEventListener('pointercancel', () => { this.ptr = null; });
+      window.addEventListener('pointercancel', () => { this.ptr = null; this.cancelHold(); });
       el.addEventListener('contextmenu', (e) => e.preventDefault());
     },
 
@@ -50,19 +52,38 @@
       if (!this.g.inRun()) return;
       e.preventDefault();
       EZ.Audio.resume();
-      this.ptr = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), swiped: false, lastDuck: false, lastDir: '', lastT: 0 };
+      this.ptr = { id: e.pointerId, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, swiped: false, still: true, lastDuck: false, lastDir: '', lastT: 0 };
+      // hold still anywhere to Launch: a ring fills round the finger, any movement cancels it
+      this.cancelHold();
+      const x = e.clientX, y = e.clientY;
+      this.ringT = setTimeout(() => EZ.UI.holdRing(x, y, HOLD_MS - RING_MS), RING_MS);
+      this.holdT = setTimeout(() => {
+        const p = this.ptr;
+        this.cancelHold();
+        if (p && p.still) this.g.action('boost', 'touch');
+      }, HOLD_MS);
+    },
+    cancelHold() {
+      clearTimeout(this.holdT);
+      clearTimeout(this.ringT);
+      EZ.UI.holdRing(null);
     },
     move(e) {
       const p = this.ptr;
       if (!p || p.id !== e.pointerId) return;
       const dx = e.clientX - p.x, dy = e.clientY - p.y;
       const th = Math.max(22, Math.min(window.innerWidth, window.innerHeight) * 0.045);
+      if (p.still && Math.hypot(e.clientX - p.x0, e.clientY - p.y0) > th * 0.4) { p.still = false; this.cancelHold(); }
       if (Math.abs(dx) < th && Math.abs(dy) < th) return;
-      const ax = Math.abs(dx), ay = Math.abs(dy);
+      // 0 is straight sideways, 90 straight up, -90 straight down
+      const ang = (Math.atan2(-dy, Math.abs(dx)) * 180) / Math.PI;
       let dir;
-      // a diagonal flick upward is a barrel roll to that side
-      if (dy < 0 && ax > th * 0.55 && ay > th * 0.55 && ax < ay * 2.4 && ay < ax * 2.4) dir = dx < 0 ? 'rollL' : 'rollR';
-      else if (ax > ay) dir = dx < 0 ? 'left' : 'right';
+      if (ang > 38 && ang < 62) {
+        // a clearly diagonal flick upward is a barrel roll; thumbs arc a little on a plain lane change,
+        // so wait until the flick has gone far enough to be sure
+        if (Math.hypot(dx, dy) < th * 1.3) return;
+        dir = dx < 0 ? 'rollL' : 'rollR';
+      } else if (ang <= 38 && ang >= -45) dir = dx < 0 ? 'left' : 'right';
       else dir = dy < 0 ? 'hop' : 'duck';
       const now = performance.now();
       p.x = e.clientX;
@@ -79,11 +100,8 @@
       const p = this.ptr;
       if (!p || p.id !== e.pointerId) return;
       this.ptr = null;
+      this.cancelHold();
       if (p.lastDuck) this.g.action('duckUp', 'touch');
-      if (p.swiped || performance.now() - p.t > 260) return;
-      const now = performance.now();
-      if (now - this.lastTap < 330) { this.g.action('boost', 'touch'); this.lastTap = 0; }
-      else this.lastTap = now;
     },
 
     poll() {

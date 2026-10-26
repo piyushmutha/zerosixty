@@ -115,11 +115,12 @@
       if (P.phase === 'approach') {
         const k = EZ.smoothstep(0, 1, P.t / 2.4);
         P.rel = EZ.lerp(-34, 0.6, k);
-        if (P.t >= 2.4) { P.phase = 'shadow'; P.t = 0; }
+        // alongside now: sound the alarm, it swerves in a moment
+        if (P.t >= 2.4) { P.phase = 'shadow'; P.t = 0; EZ.Audio.pitWarn(); this.g.vibrate([30, 40, 30]); }
       } else if (P.phase === 'shadow') {
         P.rel = 0.6 + Math.sin(P.t * 5) * 0.4;
         e.x = P.target + Math.sin(P.t * 9) * 0.12;
-        if (P.t >= 1.0) { P.phase = 'swerve'; P.t = 0; P.from = e.x; P.to = EZ.laneX(p.lane) - P.side * 0.2; }
+        if (P.t >= 1.4) { P.phase = 'swerve'; P.t = 0; P.from = e.x; P.to = EZ.laneX(p.lane) - P.side * 0.2; }
       } else if (P.phase === 'swerve') {
         const k = EZ.smoothstep(0, 1, P.t / 0.45);
         e.x = EZ.lerp(P.from, P.to, k);

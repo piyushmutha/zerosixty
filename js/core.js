@@ -55,6 +55,7 @@
     BIOME_LEN: 2200,
     GAP_MAX: 46, // metres between your bumper and the lead cruiser at best
     STUMBLE_GAP: 24,
+    BUMPER: 12, // metres: inside this the lead cruiser is on your bumper, and the next hit ends the run
     MILE: 1609.344,
     P_HW: 0.93, // player half width
     P_HL: 2.15, // player half length
