@@ -140,6 +140,8 @@
   const KEY = 'zero-sixty/save/1', OLD_KEY = 'exit-zero/save/1'; // the game was called Exit Zero before
   EZ.reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   EZ.touch = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || 'ontouchstart' in window;
+  // recording mode (?record in the URL): no first-run hints, and the pause menu picks the next set piece
+  EZ.record = new URLSearchParams(location.search).has('record');
   const DEFAULTS = {
     best: 0,
     bestDist: 0,

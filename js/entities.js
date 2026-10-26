@@ -393,8 +393,9 @@
       this.nextGuide = 480;
       this.nextFlavour = 1400;
       this.lastVMS = -1e9;
-      this.tut = EZ.store.data.tutorial ? null : { hop: false, low: false };
+      this.tut = EZ.store.data.tutorial || EZ.record ? null : { hop: false, low: false };
       this.seen = {};
+      this.forced = null;
       this.pickupNext = 650;
       this.lastTube = -1e9;
       this.nextStrip = 1100;
@@ -455,6 +456,7 @@
       if (this.zone !== 'traffic') { this.zone = 'traffic'; this.zoneLeft = EZ.randi(3, 5); return; }
       if (this.tut && (!this.tut.hop || !this.tut.low)) { this.zone = 'hazard'; this.zoneLeft = 1; return; }
       const set = (z, n = 1) => { this.zone = z; this.zoneLeft = n; if (z !== 'hazard') this.lastSpecial = z; };
+      if (this.forced) { set(this.forced); this.forced = null; return; }
       // a new set piece every other special zone until you've seen them all
       const fresh = this.debuts.find((z) => !this.seen[z]);
       if (fresh && this.zoneNo >= 4 && (this.zoneNo % 4 === 0 || this.debuts.indexOf(fresh) < 2)) { set(fresh); return; }
@@ -468,6 +470,13 @@
       const z = EZ.weighted(mix);
       if (z === 'hazard') set('hazard', EZ.randi(2, 3 + Math.round(d * 2)));
       else set(z);
+    }
+
+    // recording mode: the set piece picked in the pause menu comes next, after the road already laid out
+    queue(z) {
+      if (z === 'strip') { this.nextStrip = 0; return; }
+      this.forced = z;
+      this.zoneLeft = Math.min(this.zoneLeft, 1);
     }
 
     // ---- bookkeeping

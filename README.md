@@ -71,6 +71,15 @@ The native side is `PlayGamesPlugin.java` and `ZeroSixtyApp.java` in `android/ap
 
 The same list is in the game: Settings on the title screen, or Controls & settings in the pause menu.
 
+## Recording mode
+
+For filming the game, add `?record` to the address: [piyushmutha.github.io/zerosixty/?record](https://piyushmutha.github.io/zerosixty/?record), or `index.html?record` locally.
+
+- The first-run controls strip and the training hop and low-bar stay off.
+- The pause menu lists the set pieces: car carrier, suction tube, rolling roadblock, toll plaza, police drones, crosswinds, cargo spill and the charging lane. Tap one and the run carries on, with that set piece next once the road already laid out ahead runs out: about 20 to 30 seconds.
+
+Everything else plays as normal, and runs still count towards your best and the paint unlocks. The Android app has no address bar, so this is web only.
+
 ## The start
 
 Every run starts on the line with the cruisers right behind you. For a moment the motors wind up against the brakes, the car squats and the tyres smoke. Then the rear thrusters fire and it's sixty in about 0.8 seconds, and they keep pushing to cruising speed: a thump, speed lines, the camera falling back and widening as the speed builds, and the speed sign swelling as it counts up and flashing yellow at sixty.

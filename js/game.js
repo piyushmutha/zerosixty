@@ -268,7 +268,7 @@
       this.measureMirror();
       this.police.startChase();
       // first runs: the controls sit under the car until you've tried each one
-      this.quick = !EZ.store.data.controlsSeen;
+      this.quick = !EZ.store.data.controlsSeen && !EZ.record;
       EZ.UI.quickstart(this.quick);
       this.perf = { t: 0, n: 0, windows: 0 };
       EZ.store.data.runs++;

@@ -24,6 +24,9 @@
     ],
   };
   const QUICK = ['steer', 'hop', 'low', 'roll'];
+  // recording mode: the set pieces the pause menu can call up next
+  const RECORD = [['carrier', 'Car carrier'], ['tube', 'Suction tube'], ['rolling', 'Rolling roadblock'], ['toll', 'Toll plaza'],
+    ['drones', 'Police drones'], ['wind', 'Crosswinds'], ['cargo', 'Cargo spill'], ['strip', 'Charging lane']];
 
   const UI = (EZ.UI = {
     init(game) {
@@ -34,6 +37,7 @@
         'chargeFill', 'chargePct', 'charge', 'hops', 'btnLaunch', 'launchFill', 'flankL', 'flankR', 'bumper', 'holdRing',
         'btnPlay', 'playField', 'playName', 'btnPlaySignIn',
         'pops', 'powerups', 'dispatch', 'spotGlare', 'gust', 'empFx', 'speedSign', 'quick', 'quickCap', 'quickRow', 'ctlList', 'ctlPad',
+        'recordPick', 'recordGrid',
         'tNo', 'tVehicle', 'tCharge', 'tLoc', 'tDist', 'tTop', 'tNear', 'tVolts', 'tWrecks', 'tTime', 'tScore', 'tBest', 'tUnlock', 'tOfficer'];
       this.el = {};
       for (const id of ids) this.el[id] = $(id);
@@ -60,6 +64,7 @@
 
       this.bindSettings();
       this.buildControls();
+      this.buildRecordPick();
       this.buildSwatches();
       this.refreshTitle();
       this.lastHud = 0;
@@ -329,6 +334,20 @@
       const list = this.el.ctlList;
       list.innerHTML = this.controls().map(([, k, how, what]) => `<div class="ctl"><b class="ctl-key">${k}</b><span class="ctl-text"><strong>${what}</strong>${how}</span></div>`).join('');
       this.el.ctlPad.hidden = EZ.touch;
+    },
+    // recording mode: pick the set piece that comes next, then straight back to the road
+    buildRecordPick() {
+      if (!EZ.record) return;
+      this.el.pause.classList.add('is-record');
+      this.el.recordPick.hidden = false;
+      this.el.recordGrid.innerHTML = RECORD.map(([z, name]) => `<button class="sign sign--yellow sign-btn" data-z="${z}">${name}</button>`).join('');
+      this.el.recordGrid.addEventListener('click', (e) => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        EZ.Audio.click();
+        this.g.ents.planner.queue(b.dataset.z);
+        this.g.resume();
+      });
     },
     // first runs: the four driving moves in a strip under the car; each one ticks off once you've used it
     quickstart(show) {

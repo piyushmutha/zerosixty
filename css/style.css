@@ -348,6 +348,18 @@ input[type="range"] { width: min(180px, 45vw); accent-color: var(--green); }
 .stack { display: grid; gap: 0.7em; margin-top: 1.4em; }
 .stack .sign-btn { justify-content: flex-start; }
 
+/* recording mode (?record): the set pieces you can call up next, as warning signs */
+.screen.is-record { overflow-y: auto; }
+.screen.is-record .pause-panel { margin: auto; }
+.record-pick { margin-top: 1.4em; }
+.record-pick h3 { font: 800 1.05rem/1.2 var(--sans); }
+.record-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em; margin-top: 0.7em; }
+.record-grid .sign-btn { min-height: 2.5em; padding: 0.7em 0.8em 0.55em; font-size: 0.88rem; }
+@media (min-aspect-ratio: 4/5) {
+  .is-record .pause-panel { width: min(820px, 100%); display: grid; grid-template-columns: 1fr 1fr; column-gap: 2em; align-content: start; }
+  .is-record .record-pick { grid-column: 2; grid-row: 1 / span 4; margin-top: 0; }
+}
+
 /* ------------------------------------------------------------------ HUD */
 
 .hud {
