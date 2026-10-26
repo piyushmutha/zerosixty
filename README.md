@@ -6,7 +6,9 @@ It runs in any modern browser on phones, tablets and desktops. There is no backe
 
 ## Play
 
-Open `index.html` in a browser. That's it.
+**Play it in your browser at [piyushmutha.github.io/zerosixty](https://piyushmutha.github.io/zerosixty/).** It's served by GitHub Pages straight from the `main` branch, so every push to `main` updates it.
+
+To run it locally, open `index.html` in a browser. That's it.
 
 If your browser blocks local files, or to test on a phone over Wi-Fi, serve the folder with any static server:
 
@@ -16,7 +18,7 @@ python -m http.server 8000
 
 Then open `http://localhost:8000` (or your computer's IP on the phone).
 
-To publish it, upload the folder to any static host (GitHub Pages, Netlify, Cloudflare Pages, S3). Over HTTPS the game installs as an app and keeps working offline after the first visit.
+To publish it somewhere else, upload the folder to any static host (Netlify, Cloudflare Pages, S3). Over HTTPS the game installs as an app and keeps working offline after the first visit.
 
 Nothing is fetched from the internet: Three.js and the two typefaces are bundled in `vendor/` (a CDN copy of Three.js is only a fallback). Every model, texture and sound is generated in code.
 
@@ -147,5 +149,9 @@ Each one turns up once early in a run, in a different order every run after the 
 | `art/`, `store/` | The logo artwork, and the Google Play icon and feature graphic made from it |
 | `vendor/` | Bundled Three.js r149 (MIT) and the Overpass and Kalam fonts (SIL OFL), with their licences |
 | `android/`, `capacitor.config.json`, `scripts/` | The Android app shell and the scripts that build it |
+
+## License
+
+[MIT](LICENSE) © 2026 Piyush Mutha. The bundled Three.js (MIT) and the Overpass and Kalam fonts (SIL Open Font License) keep their own licences, in `vendor/`.
 
 This is a fan project. It is not affiliated with or endorsed by Tesla or SpaceX.
