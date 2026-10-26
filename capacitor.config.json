@@ -1,0 +1,12 @@
+{
+  "appId": "com.zerosixty.game",
+  "appName": "Zero Sixty",
+  "webDir": "www",
+  "backgroundColor": "#22262a",
+  "android": {
+    "backgroundColor": "#22262a",
+    "allowMixedContent": false,
+    "captureInput": false,
+    "webContentsDebuggingEnabled": false
+  }
+}

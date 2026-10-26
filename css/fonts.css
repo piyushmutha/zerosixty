@@ -1,0 +1,8 @@
+/* Bundled typefaces (SIL Open Font License, see vendor/fonts). Local files keep the game playable offline. */
+@font-face { font-family: "Overpass"; font-style: normal; font-weight: 400; font-display: swap; src: url("../vendor/fonts/overpass-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Overpass"; font-style: normal; font-weight: 600; font-display: swap; src: url("../vendor/fonts/overpass-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Overpass"; font-style: normal; font-weight: 800; font-display: swap; src: url("../vendor/fonts/overpass-latin-800-normal.woff2") format("woff2"); }
+@font-face { font-family: "Overpass"; font-style: normal; font-weight: 900; font-display: swap; src: url("../vendor/fonts/overpass-latin-900-normal.woff2") format("woff2"); }
+@font-face { font-family: "Overpass"; font-style: italic; font-weight: 600; font-display: swap; src: url("../vendor/fonts/overpass-latin-600-italic.woff2") format("woff2"); }
+@font-face { font-family: "Kalam"; font-style: normal; font-weight: 400; font-display: swap; src: url("../vendor/fonts/kalam-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Kalam"; font-style: normal; font-weight: 700; font-display: swap; src: url("../vendor/fonts/kalam-latin-700-normal.woff2") format("woff2"); }

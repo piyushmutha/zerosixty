@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Google Play Games. Both IDs come from Play Console; while they're empty, sign-in and the
+     leaderboard stay switched off and the game plays exactly as before. See the README. -->
+<resources>
+    <!-- Grow users > Play Games Services > Setup and management > Configuration: the Project ID under the game's name -->
+    <string name="game_services_project_id" translatable="false"></string>
+    <!-- Play Games Services > Leaderboards: the ID of the "High score" leaderboard -->
+    <string name="leaderboard_high_score" translatable="false"></string>
+</resources>

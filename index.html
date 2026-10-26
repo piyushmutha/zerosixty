@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0E6B4E">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="An endless highway pursuit. You drive the Roadster, the highway patrol wants it back.">
+  <title>Zero Sixty</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="gl" aria-hidden="true"></canvas>
+
+  <!-- Loading -->
+  <section id="boot" class="screen boot">
+    <div class="sign boot-sign">
+      <p id="bootMsg">Charging the battery</p>
+      <div class="boot-bar"><i id="bootBar"></i></div>
+    </div>
+  </section>
+
+  <!-- Title -->
+  <section id="title" class="screen title" hidden>
+    <div class="gantry">
+      <div class="truss" aria-hidden="true"></div>
+      <div class="hangers" aria-hidden="true"><i></i><i></i></div>
+      <div class="sign title-sign">
+        <span class="sign exit-tab">0–60</span>
+        <h1>Zero Sixty</h1>
+        <p class="title-sub">Sixty in 0.8 seconds. Now lose the cops.</p>
+      </div>
+    </div>
+
+    <div class="title-foot">
+      <nav class="title-actions" aria-label="Main menu">
+        <button class="sign sign-btn sign-btn--go" id="btnDrive">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 11h5v11h6V11h5z"/></svg>
+          <span>Drive</span>
+        </button>
+        <button class="sign sign--white sign-btn" id="btnPaint">Paint shop</button>
+        <button class="sign sign--white sign-btn" id="btnSettings">Settings</button>
+        <button class="sign sign--white sign-btn play-btn" id="btnPlay" hidden>Sign in to Play Games</button>
+      </nav>
+      <div class="title-meta">
+        <div class="sign marker" aria-label="Best distance">
+          <span class="marker-label">Best</span>
+          <span class="marker-num" id="bestDist">0.0</span>
+          <span class="marker-label" id="bestUnit">mi</span>
+        </div>
+        <p class="title-controls" id="titleControls"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Paint shop -->
+  <section id="paint" class="screen paint" hidden>
+    <div class="sign panel paint-panel">
+      <h2>Paint shop</h2>
+      <p class="panel-note">New colors unlock as your total distance grows. Driven so far: <b id="totalDist">0.0 mi</b></p>
+      <ul class="swatches" id="swatches"></ul>
+      <p class="paint-name" id="paintName"></p>
+      <button class="sign sign--white sign-btn" id="btnPaintDone">Back to the road</button>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section id="settings" class="screen dim" hidden>
+    <div class="sign sign--white panel settings-panel" role="dialog" aria-labelledby="settingsTitle">
+      <h2 id="settingsTitle">Controls &amp; settings</h2>
+      <div class="ctl-list" id="ctlList"></div>
+      <p class="ctl-pad" id="ctlPad">Gamepad: stick or D-pad steers, A hops, B rides low, LB and RB roll, X or RT launches, Start pauses.</p>
+      <div class="field" id="playField" hidden>
+        <span class="field-label">Google Play Games<small class="field-note" id="playName"></small></span>
+        <button class="sign sign--white sign-btn field-btn" id="btnPlaySignIn">Sign in</button>
+      </div>
+      <div class="field">
+        <span class="field-label">Sound</span>
+        <label class="switch"><input type="checkbox" id="setSound"><i></i></label>
+      </div>
+      <div class="field">
+        <label class="field-label" for="setMusic">Music</label>
+        <input type="range" id="setMusic" min="0" max="1" step="0.05">
+      </div>
+      <div class="field">
+        <label class="field-label" for="setVolume">Effects</label>
+        <input type="range" id="setVolume" min="0" max="1" step="0.05">
+      </div>
+      <div class="field">
+        <span class="field-label">Rear-view mirror</span>
+        <label class="switch"><input type="checkbox" id="setMirror"><i></i></label>
+      </div>
+      <div class="field">
+        <span class="field-label">Camera shake</span>
+        <label class="switch"><input type="checkbox" id="setShake"><i></i></label>
+      </div>
+      <div class="field" id="hapticsField">
+        <span class="field-label">Vibration</span>
+        <label class="switch"><input type="checkbox" id="setHaptics"><i></i></label>
+      </div>
+      <div class="field">
+        <span class="field-label">Graphics</span>
+        <div class="seg" id="setQuality" role="radiogroup">
+          <button data-v="auto" role="radio">Auto</button><button data-v="high" role="radio">High</button><button data-v="low" role="radio">Low</button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-label">Units</span>
+        <div class="seg" id="setUnits" role="radiogroup">
+          <button data-v="mph" role="radio">mph</button><button data-v="kmh" role="radio">km/h</button>
+        </div>
+      </div>
+      <button class="sign sign-btn sign-btn--go" id="btnSettingsDone">Done</button>
+    </div>
+  </section>
+
+  <!-- HUD -->
+  <div id="hud" class="hud" hidden>
+    <button class="pause-btn" id="btnPause" aria-label="Pause"><i></i><i></i></button>
+
+    <div class="sign marker hud-mile" aria-label="Distance">
+      <span class="marker-label">Mile</span>
+      <span class="marker-num" id="hudMile">0.0</span>
+    </div>
+
+    <div class="hud-center">
+      <div class="mirror" id="mirror" aria-hidden="true">
+        <div class="mirror-glass" id="mirrorGlass"></div>
+      </div>
+      <p class="mirror-gap" id="hudGap"></p>
+      <div class="score">
+        <span id="hudScore">0</span>
+        <span class="mult" id="hudMult">×1</span>
+      </div>
+    </div>
+
+    <div class="sign sign--white speed-sign" id="speedSign" aria-label="Speed">
+      <span class="speed-label">Speed</span>
+      <span class="speed-num" id="hudSpeed">0</span>
+      <span class="speed-unit" id="hudUnit">mph</span>
+    </div>
+
+    <div class="flank flank--left" id="flankL" aria-hidden="true"><i></i><i></i></div>
+    <div class="flank flank--right" id="flankR" aria-hidden="true"><i></i><i></i></div>
+    <div class="gust" id="gust" aria-hidden="true">
+      <svg viewBox="0 0 60 60"><rect class="gust-plate" x="13" y="13" width="34" height="34" rx="3" transform="rotate(45 30 30)"/><path class="gust-wind" d="M17 25h19a5 5 0 1 0-5-5M15 31h28M18 37h17a5 5 0 1 1-5 5"/></svg>
+      <b>Gust</b>
+    </div>
+
+    <div class="pops" id="pops" aria-live="polite"></div>
+    <div class="powerups" id="powerups"></div>
+    <div class="quick" id="quick" hidden>
+      <p class="quick-cap" id="quickCap"></p>
+      <div class="quick-row" id="quickRow"></div>
+    </div>
+
+    <div class="dispatch" id="dispatch" aria-live="polite"></div>
+
+    <div class="dash">
+      <div class="sign sign--white charge" id="charge">
+        <span class="charge-label">Charge</span>
+        <span class="charge-bar"><i id="chargeFill"></i></span>
+        <span class="charge-pct" id="chargePct">100%</span>
+      </div>
+      <div class="hops" id="hops" aria-label="Air charges ready"><i></i><i></i><i></i><span class="hops-label">Air</span></div>
+      <button class="launch" id="btnLaunch" aria-label="Launch boost">
+        <span class="launch-edge"><span class="launch-face"><span class="launch-fill" id="launchFill"></span><span class="launch-text">Launch</span></span></span>
+      </button>
+    </div>
+    <div class="spot-glare" id="spotGlare" aria-hidden="true"></div>
+  </div>
+
+  <div class="impact-flash" id="impactFlash" aria-hidden="true"></div>
+  <div class="emp-fx" id="empFx" aria-hidden="true"></div>
+
+  <!-- Pause -->
+  <section id="pause" class="screen dim" hidden>
+    <div class="sign sign--blue panel pause-panel" role="dialog" aria-labelledby="pauseTitle">
+      <svg class="pause-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="13" cy="15" r="8"/><rect x="11.5" y="20" width="3" height="20"/><rect x="21" y="23" width="23" height="3.2" rx="1"/><rect x="20" y="31" width="25" height="2.6" rx="1"/><path d="m24.5 26 -3.2 14h2.8l3.2-14zm16 0 3.2 14h-2.8l-3.2-14z"/></svg>
+      <h2 id="pauseTitle">Rest area</h2>
+      <p class="panel-note">The cruisers are waiting too.</p>
+      <div class="stack">
+        <button class="sign sign--white sign-btn" id="btnResume">Resume</button>
+        <button class="sign sign--white sign-btn" id="btnPauseSettings">Controls &amp; settings</button>
+        <button class="sign sign--white sign-btn" id="btnRestart">Restart run</button>
+        <button class="sign sign--white sign-btn" id="btnQuit">Main menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Citation -->
+  <section id="citation" class="screen dim citation" hidden>
+    <article class="ticket" aria-labelledby="tTitle">
+      <header class="ticket-head">
+        <div>
+          <p class="ticket-agency">Highway Patrol, Pursuit Division</p>
+          <h2 id="tTitle">Notice to appear</h2>
+        </div>
+        <p class="ticket-no">No. <span id="tNo">000000</span></p>
+      </header>
+      <dl class="ticket-grid">
+        <div class="f-wide"><dt>Vehicle</dt><dd id="tVehicle"></dd></div>
+        <div class="f-wide"><dt>Violation</dt><dd id="tCharge"></dd></div>
+        <div class="f-wide"><dt>Location</dt><dd id="tLoc"></dd></div>
+        <div><dt>Distance</dt><dd id="tDist"></dd></div>
+        <div><dt>Top speed</dt><dd id="tTop"></dd></div>
+        <div><dt>Close calls</dt><dd id="tNear"></dd></div>
+        <div><dt>Volts</dt><dd id="tVolts"></dd></div>
+        <div><dt>Cruisers wrecked</dt><dd id="tWrecks"></dd></div>
+        <div><dt>Time evading</dt><dd id="tTime"></dd></div>
+      </dl>
+      <div class="ticket-total">
+        <span>Score</span>
+        <strong id="tScore">0</strong>
+      </div>
+      <p class="ticket-best" id="tBest"></p>
+      <p class="ticket-unlock" id="tUnlock" hidden></p>
+      <div class="ticket-sig"><span>Issuing officer</span><span class="sig" id="tOfficer"></span></div>
+      <footer class="ticket-actions">
+        <button class="sign sign-btn sign-btn--go" id="btnAgain">Drive again</button>
+        <button class="sign sign--white sign-btn" id="btnMenu">Main menu</button>
+      </footer>
+    </article>
+  </section>
+
+  <noscript><p class="noscript">Zero Sixty needs JavaScript to run.</p></noscript>
+
+  <script>
+    (function () {
+      var engines = [
+        'vendor/three.min.js',
+        'https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js',
+        'https://unpkg.com/three@0.149.0/build/three.min.js'
+      ];
+      var app = ['js/core.js', 'js/geo.js', 'js/models.js', 'js/music.js', 'js/audio.js', 'js/fx.js', 'js/world.js',
+        'js/entities.js', 'js/player.js', 'js/police.js', 'js/challenges.js', 'js/input.js', 'js/play.js', 'js/ui.js', 'js/game.js'];
+      function add(src, ok, fail) {
+        var s = document.createElement('script');
+        s.src = src; s.async = false;
+        if (ok) s.onload = ok;
+        s.onerror = fail || function () { fatal('A game file failed to load: ' + src); };
+        document.body.appendChild(s);
+      }
+      function fatal(msg) { var el = document.getElementById('bootMsg'); if (el) el.textContent = msg; }
+      function tryEngine(i) {
+        if (i >= engines.length) { fatal('The 3D engine could not be downloaded. Check your connection, then reload.'); return; }
+        add(engines[i], function () { app.forEach(function (src) { add(src); }); }, function () { tryEngine(i + 1); });
+      }
+      window.EZ_FATAL = fatal;
+      tryEngine(0);
+    })();
+  </script>
+</body>
+</html>
