@@ -565,7 +565,8 @@
       r.time += dt;
       p.tick(dt);
       let target = EZ.Player.baseSpeed(p.s);
-      if (p.boosting > 0) target *= 1.34;
+      // Launch: a third over cruising speed, tapering off over its last 1.2 s rather than cutting out
+      if (p.boosting > 0) target *= 1 + 0.34 * EZ.smoothstep(0, 1, p.boosting / 1.2);
       if (p.battery < 12) target *= EZ.lerp(0.55, 1, p.battery / 12);
       if (p.stumble > 0) target *= 0.78;
       if (p.spiked > 0) target *= 0.85;
@@ -574,12 +575,14 @@
       const s0 = p.s;
       // rear thrusters: 0-60 in about 0.8 s at the start, and they keep pushing right up to cruising speed
       // so the pull never drops off part-way; Launch fires them again later
-      const thrust = (p.launch > 0 && p.speed < target - 0.2) || p.boosting > 2.5;
+      const thrust = (p.launch > 0 && p.speed < target - 0.2) || p.boosting > C.BOOST_TIME - 0.9;
+      // shedding the Launch's extra speed is a coast; scrapes, spikes and a dying battery still bite hard
+      const coasting = p.stumble <= 0 && p.spiked <= 0 && p.battery >= 12;
       if (thrust) p.fire.rear = Math.max(p.fire.rear, 0.06);
       const n = Math.max(1, Math.ceil(dt * 120)), h = dt / n;
       for (let i = 0; i < n && this.state === 'run'; i++) {
         const up = target > p.speed;
-        const acc = up ? (thrust ? C.LAUNCH_ACCEL : p.speed < 27 ? 15 : p.boosting > 0 ? 18 : 8) : 24;
+        const acc = up ? (thrust ? C.LAUNCH_ACCEL : p.speed < 27 ? 15 : p.boosting > 0 ? 18 : 8) : coasting ? 7 : 24;
         const ns = up ? Math.min(target, p.speed + acc * h) : Math.max(target, p.speed - acc * h);
         p.accel = EZ.damp(p.accel, (ns - p.speed) / h, 8, h);
         p.speed = ns;
@@ -1097,7 +1100,9 @@
         const pushing = st === 'run' && p.launch > 0 && p.speed < EZ.Player.baseSpeed(p.s) - 0.3;
         this.surge = EZ.damp(this.surge || 0, pushing ? 1 : 0, pushing ? 4 : 0.7, dt || 0);
         const surge = this.surge;
-        const back = EZ.lerp(7.6, 8.4, portrait) + gapPull * 4.5 + (p.boosting > 0 ? 1.3 : 0) + surge * 2.2;
+        // the Launch's camera pull-back eases in and out with the boost itself
+        this.boostK = EZ.damp(this.boostK || 0, p.boosting > 0 ? EZ.smoothstep(0, 1, p.boosting / 1.2) : 0, p.boosting > 0 ? 4 : 1.6, dt || 0);
+        const back = EZ.lerp(7.6, 8.4, portrait) + gapPull * 4.5 + this.boostK * 1.3 + surge * 2.2;
         const height = EZ.lerp(3.4, 4.6, portrait) + gapPull * 1.2;
         const ahead = EZ.lerp(10, 6, portrait);
         // the tube has its own framing (tight on the car, the camera dropping below it on the ceiling);
@@ -1120,7 +1125,7 @@
           look.x += lean * 0.6;
         }
         // tall phones frame by width instead: the same 34° across the road on any of them
-        fov = Math.max(56, this.fovForWidth(34)) + EZ.clamp((p.speed - 35) * 0.14, 0, 8) + (p.boosting > 0 ? 7 : 0) + surge * 8 + this.pitCam * 9;
+        fov = Math.max(56, this.fovForWidth(34)) + EZ.clamp((p.speed - 35) * 0.14, 0, 8) + this.boostK * 7 + surge * 8 + this.pitCam * 9;
         if (st === 'intro') {
           const k = EZ.smoothstep(0, LAUNCH_AT + 0.1, this.introT);
           pos.lerpVectors(this.camFrom, pos, k);

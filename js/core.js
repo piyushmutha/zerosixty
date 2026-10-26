@@ -67,6 +67,7 @@
     ROLL_V: 11.5, // a barrel roll throws the car higher than a hop, enough to clear a car
     GRAVITY: 30,
     LAUNCH_ACCEL: 33, // m/s^2 with the rear thrusters lit: 0-60 mph in about 0.81 s
+    BOOST_TIME: 3.8, // seconds a Launch lasts; it eases off over the last 1.2 s
     SIXTY: 26.82, // m/s: 60 mph, the launch target and the slowest the car goes while the battery holds
     TUBE_R: 3.8, // radius of the suction tube
     TUBE_CLIMB: 36, // metres spent climbing the wall

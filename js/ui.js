@@ -219,7 +219,7 @@
       this.cls('chg', E.charge, 'is-charging', !!(g.ch && g.ch.charging));
       this.hopPips.forEach((pip, i) => this.cls('hop' + i, pip, 'is-ready', i < p.hops));
       this.cls('hops', E.hops, 'is-emp', p.emp > 0);
-      E.launchFill.style.setProperty('--fill', `${Math.round((p.boosting > 0 ? p.boosting / 3.4 : p.boost) * 100)}%`);
+      E.launchFill.style.setProperty('--fill', `${Math.round((p.boosting > 0 ? p.boosting / EZ.C.BOOST_TIME : p.boost) * 100)}%`);
       this.cls('launch', E.btnLaunch, 'is-ready', p.boost >= 1 && p.boosting <= 0);
       this.cls('launch', E.btnLaunch, 'is-active', p.boosting > 0);
       this.cls('bump', E.bumper, 'is-on', g.state === 'run' && r.gap <= EZ.C.BUMPER);

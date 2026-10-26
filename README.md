@@ -83,7 +83,7 @@ On your first runs the four driving moves sit in a strip under the car, where th
 
 The car follows what Tesla showed when it revealed the Roadster on October 15, 2026: suction fans under the floor, ten cold-gas thrusters fed by compressed-air tanks, and a 0.81 s 0-60 mph run.
 
-- **Thruster launch.** Every run starts with the rear thrusters lit: about 0.81 s to sixty from the moment you go. Launch fires them again for a burst toward 240 mph.
+- **Thruster launch.** Every run starts with the rear thrusters lit: about 0.81 s to sixty from the moment you go. Launch fires them again: about four seconds at a third over your cruising speed (over 240 mph late in a run), easing off at the end.
 - **Barrel roll.** Side thrusters flip the car over the next lane and land it up to two lanes across. Use it to roll over a car that boxes you in.
 - **Suction tube.** Drive into the steel tube: the fans grip the wall, the car climbs it, and you drive along the ceiling upside down collecting charge. At the end it drops, the thrusters roll it upright, it hovers and touches down in a cloud of smoke. Left and right choose the lane you land in.
 - **Spaceship landings.** Fall from any height (end of a hover, a roof bounce) and the belly thrusters catch the car and set it down softly.

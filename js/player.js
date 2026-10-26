@@ -149,7 +149,7 @@
     fireBoost() {
       if (this.boost >= 1 && this.boosting <= 0 && !this.crashed && this.emp <= 0) {
         this.boost = 0;
-        this.boosting = 3.4;
+        this.boosting = C.BOOST_TIME;
         this.pitchV += 0.5;
         this.fire.rear = 0.9;
         return true;
