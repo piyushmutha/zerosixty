@@ -1,5 +1,6 @@
-// Builds the signed release APK with the portable toolchain in D:/Android-toolchain
-// and copies it to dist/. Override the locations with JAVA_HOME / ANDROID_HOME.
+// Builds the signed release APK (or, with --bundle, the App Bundle Google Play takes) with the
+// portable toolchain in D:/Android-toolchain and copies it to dist/. Override the locations with
+// JAVA_HOME / ANDROID_HOME.
 import { execFileSync } from 'node:child_process';
 import { cpSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -13,12 +14,15 @@ const env = {
 };
 env.PATH = `${join(env.JAVA_HOME, 'bin')};${env.PATH}`;
 
+const bundle = process.argv.includes('--bundle');
+const task = bundle ? 'bundleRelease' : 'assembleRelease';
 const win = process.platform === 'win32';
 const gradlew = join(process.cwd(), 'android', win ? 'gradlew.bat' : 'gradlew');
-execFileSync(win ? 'cmd.exe' : gradlew, win ? ['/c', gradlew, 'assembleRelease', '--console=plain'] : ['assembleRelease', '--console=plain'], { cwd: 'android', env, stdio: 'inherit' });
+execFileSync(win ? 'cmd.exe' : gradlew, win ? ['/c', gradlew, task, '--console=plain'] : [task, '--console=plain'], { cwd: 'android', env, stdio: 'inherit' });
 
-const built = 'android/app/build/outputs/apk/release/app-release.apk';
-if (!existsSync(built)) throw new Error('No signed APK was produced. Is android/keystore.properties present?');
+const built = bundle ? 'android/app/build/outputs/bundle/release/app-release.aab' : 'android/app/build/outputs/apk/release/app-release.apk';
+const out = bundle ? 'dist/ZeroSixty.aab' : 'dist/ZeroSixty.apk';
+if (!existsSync(built)) throw new Error(`No signed ${bundle ? 'bundle' : 'APK'} was produced. Is android/keystore.properties present?`);
 mkdirSync('dist', { recursive: true });
-cpSync(built, 'dist/ZeroSixty.apk');
-console.log('APK ready: dist/ZeroSixty.apk');
+cpSync(built, out);
+console.log(`${bundle ? 'Bundle' : 'APK'} ready: ${out}`);

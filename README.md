@@ -38,7 +38,9 @@ npm run android:apk
 
 That copies the game into `www/`, syncs it into the Capacitor project in `android/`, and builds with the portable JDK and Android SDK in `D:\Android-toolchain`. To open the project in Android Studio instead, run `npx cap open android`.
 
-**Keep the signing key.** Updates to an installed app must be signed with the same key. It lives at `D:\Android-toolchain\keys\exit-zero-release.jks`, and its password is in `android/keystore.properties`. Back both up somewhere safe and don't share them. To publish on Google Play you'd build an app bundle (`gradlew bundleRelease`) and use Play App Signing.
+**Keep the signing key.** Updates to an installed app must be signed with the same key. It lives at `D:\Android-toolchain\keys\exit-zero-release.jks`, and its password is in `android/keystore.properties`. Back both up somewhere safe and don't share them.
+
+**Google Play** takes an App Bundle rather than an APK: `npm run android:aab` builds a signed `dist/ZeroSixty.aab` with the same key, which becomes the upload key under Play App Signing. Everything else Play Console asks for (listing text, screenshots, app content answers and the closed-testing steps) is in [`store/listing.md`](store/listing.md). The privacy policy is [`privacy.html`](privacy.html), published at https://piyushmutha.github.io/zerosixty/privacy.html.
 
 ## Google Play Games sign-in
 
@@ -52,7 +54,7 @@ It stays switched off until the game is set up in Play Console, and until then t
    - APKs you build and install yourself are signed with the upload key: SHA-1 `E9:75:82:DF:C4:B3:26:6B:23:4A:99:CC:60:22:FA:24:E3:38:67:F8`.
    - Copies installed from Google Play are signed by Google: copy the SHA-1 from **Test and release > App integrity > App signing**.
 4. Under **Leaderboards**, create one called **High score**: numeric, no decimal places, larger is better. Copy its ID.
-5. Under **Testers**, add your Google account. Until the game is published, only testers can sign in.
+5. Under **Testers**, add your Google account, and on the **Release tracks** tab add the closed testing track so everyone testing it can sign in too. Until the game is published, only testers can sign in.
 6. Put both IDs in `android/app/src/main/res/values/play_games.xml`, then run `npm run android:apk`.
 7. Before releasing to everyone: publish the OAuth consent screen in Google Cloud, then click **Publish** on the Play Games Services page, **before** you publish the app itself.
 
@@ -155,7 +157,8 @@ Each one turns up once early in a run, in a different order every run after the 
 | `js/input.js`, `js/ui.js`, `js/game.js` | Input, interface, and the game loop |
 | `js/play.js` | Google Play Games in the Android app: sign-in status and the leaderboard |
 | `sw.js`, `manifest.webmanifest`, `icons/` | Offline cache and installable web app, with its icons |
-| `art/`, `store/` | The logo artwork, and the Google Play icon and feature graphic made from it |
+| `art/`, `store/` | The logo artwork; the Google Play icon, feature graphic, phone screenshots and listing text |
+| `privacy.html` | The privacy policy, served by GitHub Pages |
 | `vendor/` | Bundled Three.js r149 (MIT) and the Overpass and Kalam fonts (SIL OFL), with their licences |
 | `android/`, `capacitor.config.json`, `scripts/` | The Android app shell and the scripts that build it |
 
